@@ -1,7 +1,16 @@
 import argparse
 import logging
-import os
+import logging.config
+import lake
+from lake.conf import ConfigLoader
+from pathlib import Path
 
+logger_path = Path("./configs/logger.yaml")
+print("current_path: ", logger_path.resolve())
+conf = ConfigLoader(logger_path)
+_logger = logging.getLogger(__name__)
+
+import os
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -85,7 +94,7 @@ def get_output_filenames(args):
             pathsplit = os.path.splitext(f)
             out_files.append("{}_OUT{}".format(pathsplit[0], pathsplit[1]))
     elif len(in_files) != len(args.output):
-        logging.error("Input files and output files are not of the same length")
+        _logger.error("Input files and output files are not of the same length")
         raise SystemExit()
     else:
         out_files = args.output
@@ -104,17 +113,17 @@ if __name__ == "__main__":
 
     net = UNet(n_channels=3, n_classes=1)
 
-    logging.info("Loading model {}".format(args.model))
+    _logger.info("Loading model {}".format(args.model))
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    logging.info(f'Using device {device}')
+    _logger.info(f'Using device {device}')
     net.to(device=device)
     net.load_state_dict(torch.load(args.model, map_location=device))
 
-    logging.info("Model loaded !")
+    _logger.info("Model loaded !")
 
     for i, fn in enumerate(in_files):
-        logging.info("\nPredicting image {} ...".format(fn))
+        _logger.info("\nPredicting image {} ...".format(fn))
 
         img = Image.open(fn)
 
@@ -129,8 +138,8 @@ if __name__ == "__main__":
             result = mask_to_image(mask)
             result.save(out_files[i])
 
-            logging.info("Mask saved to {}".format(out_files[i]))
+            _logger.info("Mask saved to {}".format(out_files[i]))
 
         if args.viz:
-            logging.info("Visualizing results for image {}, close to continue ...".format(fn))
+            _logger.info("Visualizing results for image {}, close to continue ...".format(fn))
             plot_img_and_mask(img, mask)
