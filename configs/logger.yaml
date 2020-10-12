@@ -1,0 +1,29 @@
+# 离线日志
+offline_logging:
+    version: 1
+    formatters:
+        simpleFormater:
+            format: '%(asctime)s - %(levelname)s - %(name)s[line:%(lineno)d]: %(message)s'
+            datefmt: '%Y-%m-%d %H:%M:%S'
+    handlers:
+        # 标准输出，只要级别在DEBUG以上就会输出
+        console:
+            class: logging.StreamHandler
+            formatter: simpleFormater
+            level: DEBUG
+            stream: ext://sys.stdout
+        # INFO以上，滚动文件，保留20个，每个最大100MB
+        info_file_handler:
+            class : logging.FileHandler
+            formatter: simpleFormater
+            level: INFO
+            filename: ./logs/info.log
+        # ERROR以上
+        error_file_handler:
+            class : logging.FileHandler
+            formatter: simpleFormater
+            level: ERROR
+            filename: ./logs/error.log
+    root:
+        level: DEBUG
+        handlers: [console, info_file_handler, error_file_handler]

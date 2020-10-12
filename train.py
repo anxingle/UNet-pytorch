@@ -1,5 +1,15 @@
 import argparse
 import logging
+import logging.config
+import lake
+from lake.conf import ConfigLoader
+from pathlib import Path
+
+logger_path = Path("./configs/logger.yaml")
+print("current_path: ", logger_path.resolve())
+conf = ConfigLoader(logger_path)
+_logger = logging.getLogger(__name__)
+
 import os
 import sys
 
@@ -16,8 +26,10 @@ from torch.utils.tensorboard import SummaryWriter
 from utils.dataset import BasicDataset
 from torch.utils.data import DataLoader, random_split
 
-dir_img = 'data/imgs/'
-dir_mask = 'data/masks/'
+base = Path(os.environ['raw_data_base']) if 'raw_data_base' in os.environ.keys() else None
+assert base is not None, "Please assign the raw_data_base(which store the training data) in system path "
+dir_img = base / 'imgs'
+dir_mask = base / 'masks/'
 dir_checkpoint = 'checkpoints/'
 
 
@@ -30,7 +42,7 @@ def train_net(net,
               save_cp=True,
               img_scale=0.5):
 
-    dataset = BasicDataset(dir_img, dir_mask, img_scale)
+    dataset = BasicDataset(dir_img.resolve(), dir_mask.resolve(), img_scale)
     n_val = int(len(dataset) * val_percent)
     n_train = len(dataset) - n_val
     train, val = random_split(dataset, [n_train, n_val])
@@ -40,7 +52,7 @@ def train_net(net,
     writer = SummaryWriter(comment=f'LR_{lr}_BS_{batch_size}_SCALE_{img_scale}')
     global_step = 0
 
-    logging.info(f'''Starting training:
+    _logger.info(f'''Starting training:
         Epochs:          {epochs}
         Batch size:      {batch_size}
         Learning rate:   {lr}
@@ -99,10 +111,10 @@ def train_net(net,
                     writer.add_scalar('learning_rate', optimizer.param_groups[0]['lr'], global_step)
 
                     if net.n_classes > 1:
-                        logging.info('Validation cross entropy: {}'.format(val_score))
+                        _logger.info('Validation cross entropy: {}'.format(val_score))
                         writer.add_scalar('Loss/test', val_score, global_step)
                     else:
-                        logging.info('Validation Dice Coeff: {}'.format(val_score))
+                        _logger.info('Validation Dice Coeff: {}'.format(val_score))
                         writer.add_scalar('Dice/test', val_score, global_step)
 
                     writer.add_images('images', imgs, global_step)
@@ -113,12 +125,12 @@ def train_net(net,
         if save_cp:
             try:
                 os.mkdir(dir_checkpoint)
-                logging.info('Created checkpoint directory')
+                _logger.info('Created checkpoint directory')
             except OSError:
                 pass
             torch.save(net.state_dict(),
                        dir_checkpoint + f'CP_epoch{epoch + 1}.pth')
-            logging.info(f'Checkpoint {epoch + 1} saved !')
+            _logger.info(f'Checkpoint {epoch + 1} saved !')
 
     writer.close()
 
@@ -146,7 +158,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
     args = get_args()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    logging.info(f'Using device {device}')
+    _logger.info(f'Using device {device}')
 
     # Change here to adapt to your data
     # n_channels=3 for RGB images
@@ -155,7 +167,7 @@ if __name__ == '__main__':
     #   - For 2 classes, use n_classes=1
     #   - For N > 2 classes, use n_classes=N
     net = UNet(n_channels=3, n_classes=1, bilinear=True)
-    logging.info(f'Network:\n'
+    _logger.info(f'Network:\n'
                  f'\t{net.n_channels} input channels\n'
                  f'\t{net.n_classes} output channels (classes)\n'
                  f'\t{"Bilinear" if net.bilinear else "Transposed conv"} upscaling')
@@ -164,7 +176,7 @@ if __name__ == '__main__':
         net.load_state_dict(
             torch.load(args.load, map_location=device)
         )
-        logging.info(f'Model loaded from {args.load}')
+        _logger.info(f'Model loaded from {args.load}')
 
     net.to(device=device)
     # faster convolutions, but more memory
@@ -180,7 +192,7 @@ if __name__ == '__main__':
                   val_percent=args.val / 100)
     except KeyboardInterrupt:
         torch.save(net.state_dict(), 'INTERRUPTED.pth')
-        logging.info('Saved interrupt')
+        _logger.info('Saved interrupt')
         try:
             sys.exit(0)
         except SystemExit:
