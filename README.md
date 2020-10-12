@@ -1,5 +1,5 @@
 # UNet: medical image semantic segmentation with PyTorch
-(forked from ![milesial](https://github.com/milesial/Pytorch-UNet), little change with original implementation)
+(forked from [milesial](https://github.com/milesial/Pytorch-UNet), little change with original implementation)
 
 ![input and output for a random image in the test dataset](https://framapic.org/OcE8HlU6me61/KNTt8GFQzxDR.png)
 
