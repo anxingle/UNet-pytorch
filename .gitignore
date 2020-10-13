@@ -6,3 +6,5 @@ checkpoints/
 *.jpg
 SUBMISSION*
 venv/
+runs/
+logs/
