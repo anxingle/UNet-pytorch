@@ -4,21 +4,51 @@
 ![input and output for a random image in the test dataset](https://framapic.org/OcE8HlU6me61/KNTt8GFQzxDR.png)
 
 
-Customized implementation of the [U-Net](https://arxiv.org/abs/1505.04597) in PyTorch for Kaggle's [Carvana Image Masking Challenge](https://www.kaggle.com/c/carvana-image-masking-challenge) from high definition images.
+本文 [U-Net](https://arxiv.org/abs/1505.04597) 实现用于医学影像分割学习.
 
-The Carvana data is available on the [Kaggle website](https://www.kaggle.com/c/carvana-image-masking-challenge/data).
-
-## Usage
+## 使用指南
 **Note : Use Python 3**
-### Prediction
 
-You can easily test the output masks on your images via the CLI.
 
-To predict a single image and save it:
+### 训练
+
+```shell script
+> python train.py -h
+usage: train.py [-h] [-e E] [-b [B]] [-l [LR]] [-f LOAD] [-s SCALE] [-v VAL]
+
+可选参数:
+  -h, --help            显示帮助信息
+  -e E, --epochs E      训练轮次 (epochs，默认: 5次)
+  -b [B], --batch-size [B]
+                        Batch size (默认: 1)
+  -l [LR], --learning-rate [LR]
+                        学习率 (默认: 0.1)
+  -f LOAD, --load LOAD  从 .pth 中加载模型 (默认: False)
+  -s SCALE, --scale SCALE
+                        图像缩放因子 (默认: 0.5)
+  -v VAL, --validation VAL
+                        验证集所在比例 (0-100，默认: 15.0)
+
+```
+为防止显存消耗过大，`scale` 默认是0.5（还可以更小）。如果你家里有卡，不在乎这点影响，完全可以把它设为1。（后续加入apex特性，更加省显存）
+
+#### 训练集
+将 imgs 和 masks 目录放在 根目录下的 data 目录下。
+
+## Tensorboard
+使用下面命令来实时查看训练、测试的loss及预测的精度变化:
+
+`tensorboard --logdir=runs`
+
+### 预测
+
+命令行下推理预测图片的mask非常简单：
+
+对单张图片预测并保存结果:
 
 `python predict.py -i image.jpg -o output.jpg`
 
-To predict a multiple images and show them without saving them:
+对多张图片预测并显示（可选保存）:
 
 `python predict.py -i image1.jpg image2.jpg --viz --no-save`
 
@@ -28,69 +58,27 @@ usage: predict.py [-h] [--model FILE] --input INPUT [INPUT ...]
                   [--output INPUT [INPUT ...]] [--viz] [--no-save]
                   [--mask-threshold MASK_THRESHOLD] [--scale SCALE]
 
-Predict masks from input images
+对输入图片预测mask区域：
 
-optional arguments:
-  -h, --help            show this help message and exit
+可选参数:
+  -h, --help            显示帮助信息
   --model FILE, -m FILE
-                        Specify the file in which the model is stored
-                        (default: MODEL.pth)
+                        指定使用的模型文件 (默认: MODEL.pth)
   --input INPUT [INPUT ...], -i INPUT [INPUT ...]
-                        filenames of input images (default: None)
+                        输入图片 (默认: None)
   --output INPUT [INPUT ...], -o INPUT [INPUT ...]
-                        Filenames of ouput images (default: None)
-  --viz, -v             Visualize the images as they are processed (default:
-                        False)
-  --no-save, -n         Do not save the output masks (default: False)
+                        输出mask文件 (默认: None)
+  --viz, -v             可视化处理后的图片 (默认: False)
+  --no-save, -n         不保存输出的Mask文件 (默认: False)
   --mask-threshold MASK_THRESHOLD, -t MASK_THRESHOLD
-                        Minimum probability value to consider a mask pixel
-                        white (default: 0.5)
+                        被认为是mask点的阈值概率 (默认: 0.5)
   --scale SCALE, -s SCALE
-                        Scale factor for the input images (default: 0.5)
+                        图片缩放因子 (默认: 0.5)
 ```
-You can specify which model file to use with `--model MODEL.pth`.
 
-### Training
-
-```shell script
-> python train.py -h
-usage: train.py [-h] [-e E] [-b [B]] [-l [LR]] [-f LOAD] [-s SCALE] [-v VAL]
-
-Train the UNet on images and target masks
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -e E, --epochs E      Number of epochs (default: 5)
-  -b [B], --batch-size [B]
-                        Batch size (default: 1)
-  -l [LR], --learning-rate [LR]
-                        Learning rate (default: 0.1)
-  -f LOAD, --load LOAD  Load model from a .pth file (default: False)
-  -s SCALE, --scale SCALE
-                        Downscaling factor of the images (default: 0.5)
-  -v VAL, --validation VAL
-                        Percent of the data that is used as validation (0-100)
-                        (default: 15.0)
-
-```
-By default, the `scale` is 0.5, so if you wish to obtain better results (but use more memory), set it to 1.
-
-The input images and target masks should be in the `data/imgs` and `data/masks` folders respectively.
-
-## Tensorboard
-You can visualize in real time the train and test losses, along with the model predictions with tensorboard:
-
-`tensorboard --logdir=runs`
-
-## Notes on memory
-
-The model has be trained from scratch on a GTX970M 3GB.
-Predicting images of 1918*1280 takes 1.5GB of memory.
-Training takes much approximately 3GB, so if you are a few MB shy of memory, consider turning off all graphical displays.
-This assumes you use bilinear up-sampling, and not transposed convolution in the model.
 
 ---
 
-Original paper by Olaf Ronneberger, Philipp Fischer, Thomas Brox: [https://arxiv.org/abs/1505.04597](https://arxiv.org/abs/1505.04597)
+Olaf Ronneberger, Philipp Fischer, Thomas Brox: [https://arxiv.org/abs/1505.04597](https://arxiv.org/abs/1505.04597)
 
 ![network architecture](https://i.imgur.com/jeDVpqF.png)
