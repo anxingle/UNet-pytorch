@@ -42,7 +42,7 @@ def train_net(net,
               save_cp=True,
               img_scale=0.5):
 
-    dataset = BasicDataset(dir_img.resolve(), dir_mask.resolve(), img_scale)
+    dataset = BasicDataset(str(dir_img.resolve()), str(dir_mask.resolve()), img_scale)
     n_val = int(len(dataset) * val_percent)
     n_train = len(dataset) - n_val
     train, val = random_split(dataset, [n_train, n_val])
