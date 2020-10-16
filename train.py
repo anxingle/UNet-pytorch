@@ -49,6 +49,7 @@ def train_net(net,
     train_loader = DataLoader(train, batch_size=batch_size, shuffle=True, num_workers=8, pin_memory=True)
     val_loader = DataLoader(val, batch_size=batch_size, shuffle=False, num_workers=8, pin_memory=True, drop_last=True)
 
+    # tensorboard 记录
     writer = SummaryWriter(comment=f'LR_{lr}_BS_{batch_size}_SCALE_{img_scale}')
     global_step = 0
 
@@ -63,11 +64,15 @@ def train_net(net,
         Images scaling:  {img_scale}
     ''')
 
+    # XXX: RMSprop算法实现-https://zh.d2l.ai/chapter_optimization/rmsprop.html
     optimizer = optim.RMSprop(net.parameters(), lr=lr, weight_decay=1e-8, momentum=0.9)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min' if net.n_classes > 1 else 'max', patience=2)
+    # TODO: Dice loss/IOU loss?
     if net.n_classes > 1:
+        # 使用普通交叉熵
         criterion = nn.CrossEntropyLoss()
     else:
+        # 二分类使用二值交叉熵
         criterion = nn.BCEWithLogitsLoss()
 
     for epoch in range(epochs):
@@ -78,6 +83,7 @@ def train_net(net,
             for batch in train_loader:
                 imgs = batch['image']
                 true_masks = batch['mask']
+                # imgs shape should be: Channel/Height/Width
                 assert imgs.shape[1] == net.n_channels, \
                     f'Network has been defined with {net.n_channels} input channels, ' \
                     f'but loaded images have {imgs.shape[1]} channels. Please check that ' \
@@ -90,8 +96,10 @@ def train_net(net,
                 masks_pred = net(imgs)
                 loss = criterion(masks_pred, true_masks)
                 epoch_loss += loss.item()
+                # tensorboard 写入标量
                 writer.add_scalar('Loss/train', loss.item(), global_step)
 
+                # 进度条右边显示内容
                 pbar.set_postfix(**{'loss (batch)': loss.item()})
 
                 optimizer.zero_grad()
@@ -103,9 +111,12 @@ def train_net(net,
                 global_step += 1
                 if global_step % (n_train // (10 * batch_size)) == 0:
                     for tag, value in net.named_parameters():
+                        # tag: down4.maxpool_conv.1double_conv.3.weights
                         tag = tag.replace('.', '/')
+                        # tensorboard 记录网络权重与梯度信息
                         writer.add_histogram('weights/' + tag, value.data.cpu().numpy(), global_step)
                         writer.add_histogram('grads/' + tag, value.grad.data.cpu().numpy(), global_step)
+                    # 验证集评估模型
                     val_score = eval_net(net, val_loader, device)
                     scheduler.step(val_score)
                     writer.add_scalar('learning_rate', optimizer.param_groups[0]['lr'], global_step)
