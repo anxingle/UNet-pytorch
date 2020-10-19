@@ -12,6 +12,7 @@ _logger = logging.getLogger(__name__)
 
 import os
 import numpy as np
+import cv2
 import torch
 import torch.nn.functional as F
 from PIL import Image
@@ -30,6 +31,7 @@ def predict_img(net,
     net.eval()
 
     img = torch.from_numpy(BasicDataset.preprocess(full_img, scale_factor))
+    # h, w, c = full_img.shape
 
     img = img.unsqueeze(0)
     img = img.to(device=device, dtype=torch.float32)
@@ -47,7 +49,7 @@ def predict_img(net,
         tf = transforms.Compose(
             [
                 transforms.ToPILImage(),
-                transforms.Resize(full_img.size[1]),
+                transforms.Resize(full_img.shape[0]),
                 transforms.ToTensor()
             ]
         )
@@ -75,7 +77,7 @@ def get_args():
     parser.add_argument('--no-save', '-n', action='store_true',
                         help="Do not save the output masks",
                         default=False)
-    parser.add_argument('--mask-threshold', '-t', type=float,
+    parser.add_argument('--mask_threshold', '-t', type=float,
                         help="Minimum probability value to consider a mask pixel white",
                         default=0.5)
     parser.add_argument('--scale', '-s', type=float,
@@ -97,8 +99,9 @@ def get_output_filenames(args):
         _logger.error("Input files and output files are not of the same length")
         raise SystemExit()
     else:
-        out_files = args.output
-
+        for f in in_files:
+            pathsplit = os.path.splitext(f)
+            out_files.append(os.path.join(args.output[0], "%s_OUT%s"% (pathsplit[0].split("/")[-1], pathsplit[1])))
     return out_files
 
 
@@ -125,7 +128,8 @@ if __name__ == "__main__":
     for i, fn in enumerate(in_files):
         _logger.info("\nPredicting image {} ...".format(fn))
 
-        img = Image.open(fn)
+        # img2 = Image.open(fn)
+        img = cv2.imread(fn)
 
         mask = predict_img(net=net,
                            full_img=img,
@@ -142,4 +146,4 @@ if __name__ == "__main__":
 
         if args.viz:
             _logger.info("Visualizing results for image {}, close to continue ...".format(fn))
-            plot_img_and_mask(img, mask)
+            plot_img_and_mask(img, np.uint8(mask), 0.6)

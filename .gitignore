@@ -8,3 +8,4 @@ SUBMISSION*
 venv/
 runs/
 logs/
+.idea/*
