@@ -6,3 +6,4 @@ torchvision
 tensorboard
 future
 tqdm
+opencv-python
