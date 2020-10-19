@@ -1,4 +1,4 @@
-# UNet: medical image semantic segmentation with PyTorch
+# UNet: 医学图像语义分割
 (forked from [milesial](https://github.com/milesial/Pytorch-UNet), little change with original implementation)
 
 ![covid-19 image](https://github.com/anxingle/UNet-pytorch/blob/master/data/show.png?raw=true)
