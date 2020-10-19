@@ -1,6 +1,7 @@
 # UNet: medical image semantic segmentation with PyTorch
 (forked from [milesial](https://github.com/milesial/Pytorch-UNet), little change with original implementation)
 
+![covid-19 image](https://github.com/anxingle/UNet-pytorch/blob/master/data/show.png?raw=true)
 ![input and output for a random image in the test dataset](https://framapic.org/OcE8HlU6me61/KNTt8GFQzxDR.png)
 
 
