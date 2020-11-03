@@ -170,12 +170,11 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     _logger.info(f'Using device {device}')
 
-    # Change here to adapt to your data
-    # n_channels=3 for RGB images
-    # n_classes is the number of probabilities you want to get per pixel
-    #   - For 1 class and background, use n_classes=1
-    #   - For 2 classes, use n_classes=1
-    #   - For N > 2 classes, use n_classes=N
+    # 根据自己的数据进行调整
+    # n_channels: 图片通道数，RGB彩色图片为3
+    # n_classes: 每个像素的可能概率（候选）
+    # n_classes=1: 前景与背景或两类object
+    # n_classes=N: 类别N > 2
     net = UNet(n_channels=3, n_classes=1, bilinear=True)
     _logger.info(f'Network:\n'
                  f'\t{net.n_channels} input channels\n'
@@ -189,7 +188,7 @@ if __name__ == '__main__':
         _logger.info(f'Model loaded from {args.load}')
 
     net.to(device=device)
-    # faster convolutions, but more memory
+    # 快速卷积（更耗显存）
     # cudnn.benchmark = True
 
     try:
