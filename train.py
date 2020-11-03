@@ -83,7 +83,7 @@ def train_net(net,
             for batch in train_loader:
                 imgs = batch['image']
                 true_masks = batch['mask']
-                # imgs shape should be: Channel/Height/Width
+                # imgs 形状应为 [BatchSize, Channel, Height, Width]
                 assert imgs.shape[1] == net.n_channels, \
                     f'Network has been defined with {net.n_channels} input channels, ' \
                     f'but loaded images have {imgs.shape[1]} channels. Please check that ' \
@@ -138,7 +138,7 @@ def train_net(net,
                 os.mkdir(dir_checkpoint)
                 _logger.info('Created checkpoint directory')
             except OSError:
-                pass
+                _logger.error('Failed to created checkpoint directory!')
             torch.save(net.state_dict(),
                        dir_checkpoint + f'CP_epoch{epoch + 1}.pth')
             _logger.info(f'Checkpoint {epoch + 1} saved !')
@@ -181,6 +181,7 @@ if __name__ == '__main__':
                  f'\t{net.n_classes} output channels (classes)\n'
                  f'\t{"Bilinear" if net.bilinear else "Transposed conv"} upscaling')
 
+    # 是否加载预训练模型
     if args.load:
         net.load_state_dict(
             torch.load(args.load, map_location=device)
