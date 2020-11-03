@@ -64,11 +64,14 @@ class BasicDataset(Dataset):
         mask = cv2.imread(mask_file[0])
         img = cv2.imread(img_file[0])
 
-        assert img.size == mask.size, \
-            f'Image and mask {idx} should be the same size, but are {img.size} and {mask.size}'
+        assert img.shape == mask.shape, \
+            f'Image and mask {idx} should be the same size, but are {img.shape} and {mask.shape}'
 
         img = self.preprocess(img, self.scale)
         mask = self.preprocess(mask, self.scale, gray=True)
+
+        assert img.shape[1] == mask.shape[1], 'img and mask must have same height   %s' % idx
+        assert img.shape[2] == mask.shape[2], 'img and mask must have same width    %s' % idx
 
         return {
             'image': torch.from_numpy(img).type(torch.FloatTensor),
