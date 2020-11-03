@@ -74,8 +74,3 @@ class BasicDataset(Dataset):
             'image': torch.from_numpy(img).type(torch.FloatTensor),
             'mask': torch.from_numpy(mask).type(torch.FloatTensor)
         }
-
-
-class CarvanaDataset(BasicDataset):
-    def __init__(self, imgs_dir, masks_dir, scale=1):
-        super().__init__(imgs_dir, masks_dir, scale, mask_suffix='_mask')
