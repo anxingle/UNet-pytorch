@@ -132,6 +132,8 @@ def get_args():
                         help='Number of epochs', dest='epochs')
     parser.add_argument('-b', '--batch-size', metavar='B', type=int, nargs='?', default=4,
                         help='Batch size', dest='batchsize')
+    parser.add_argument('--channels', type=int, default=3, help='image channels', dest='channels')
+    parser.add_argument('--classes', type=int, default=1, help='mask nums', dest='classes')
     parser.add_argument('-l', '--learning-rate', metavar='LR', type=float, nargs='?', default=0.0001,
                         help='Learning rate', dest='lr')
     parser.add_argument('-f', '--load', dest='load', type=str, default=False,
@@ -154,7 +156,7 @@ if __name__ == '__main__':
     # n_classes: 每个像素的可能概率（候选）
     # n_classes=1: 前景与背景或两类object
     # n_classes=N: 类别N > 2
-    net = UNet(n_channels=3, n_classes=1, bilinear=True)
+    net = UNet(n_channels=args.channels, n_classes=args.classes, bilinear=True)
     _logger.info(f'Network:\n'
                  f'\t{net.n_channels} input channels\n'
                  f'\t{net.n_classes} output channels (classes)\n'
