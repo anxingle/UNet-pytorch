@@ -10,6 +10,7 @@
 
 
 本文 [U-Net](https://arxiv.org/abs/1505.04597) 实现用于医学影像分割学习.
+数据集百度云盘 链接: https://pan.baidu.com/s/1mmRZVUZrvJ8OHw___xP8mQ  密码: l1e3
 
 ## 使用指南
 **Note : Use Python 3**
