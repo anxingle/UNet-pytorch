@@ -38,6 +38,9 @@ usage: train.py [-h] [-e E] [-b [B]] [-l [LR]] [-f LOAD] [-s SCALE] [-v VAL]
 ```
 为防止显存消耗过大，`scale` 默认是0.5（还可以更小）。如果你家里有卡，不在乎这点影响，完全可以把它设为1。（后续加入apex特性，更加省显存）
 
+**Warning:**
+windows下请注意路径问题！
+
 #### 训练集
 将 imgs 和 masks 目录放在 根目录下的 data 目录下。
 

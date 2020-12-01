@@ -1,5 +1,6 @@
 from os.path import splitext
 from os import listdir
+import os
 import numpy as np
 from glob import glob
 import torch
@@ -52,17 +53,20 @@ class BasicDataset(Dataset):
 
     def __getitem__(self, i):
         idx = self.ids[i]
-        mask_file = glob(self.masks_dir + '/' + idx + self.mask_suffix + '.*')
-        img_file = glob(self.imgs_dir + '/' + idx + '.*')
+        # mask_file = glob(self.masks_dir + '/' + idx + self.mask_suffix + '.*')
+        # img_file = glob(self.imgs_dir + '/' + idx + '.*')
+        mask_file = os.path.join(self.masks_dir, '%s' % idx + self.mask_suffix + '.jpg')
+        img_file = os.path.join(self.imgs_dir, '%s' % idx + '.jpg')
 
-        assert len(mask_file) == 1, \
-            f'Either no mask or multiple masks found for the ID {idx}: {mask_file}'
-        assert len(img_file) == 1, \
-            f'Either no image or multiple images found for the ID {idx}: {img_file}'
+        # XXX: 这里mask_file 应该是路径名
+        # assert len(mask_file) == 1, \
+        #     f'Either no mask or multiple masks found for the ID {idx}: {mask_file}'
+        # assert len(img_file) == 1, \
+        #     f'Either no image or multiple images found for the ID {idx}: {img_file}'
         # mask = Image.open(mask_file[0])
         # img = Image.open(img_file[0])
-        mask = cv2.imread(mask_file[0])
-        img = cv2.imread(img_file[0])
+        mask = cv2.imread(mask_file)
+        img = cv2.imread(img_file)
 
         assert img.shape == mask.shape, \
             f'Image and mask {idx} should be the same size, but are {img.shape} and {mask.shape}'
@@ -77,3 +81,12 @@ class BasicDataset(Dataset):
             'image': torch.from_numpy(img).type(torch.FloatTensor),
             'mask': torch.from_numpy(mask).type(torch.FloatTensor)
         }
+
+if __name__ == '__main__':
+    data = BasicDataset('/Volumes/data/workspace/cv/Pytorch-UNet/data/imgs/', '/Volumes/data/workspace/cv/Pytorch-UNet/data/masks/')
+    for n, i in enumerate(data):
+        print(n)
+
+
+
+
