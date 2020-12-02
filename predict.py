@@ -132,6 +132,7 @@ if __name__ == "__main__":
 
         # img2 = Image.open(fn)
         img = cv2.imread(fn)
+        assert img is not None, "您输入的图片为空，或者损坏: %s" % fn
 
         mask = predict_img(net=net,
                            full_img=img,
