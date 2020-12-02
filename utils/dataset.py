@@ -74,10 +74,6 @@ class BasicDataset(Dataset):
         assert img.shape == mask.shape, \
             f'Image 和 mask {idx} 应该有相同的大小, 但这里img是： {img.shape}， mask是： {mask.shape}'
 
-        print("img_file: ", img_file)
-        print("img shape: ",  img.shape)
-        print("mask_file: ", mask_file)
-        print("mask shape: ",  mask.shape)
         img = self.preprocess(img, self.scale)
         mask = self.preprocess(mask, self.scale, gray=True)
 
