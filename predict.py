@@ -1,8 +1,7 @@
 import argparse
 import logging
 import logging.config
-import lake
-from lake.conf import ConfigLoader
+from utils.load_conf import ConfigLoader
 from pathlib import Path
 
 logger_path = Path("./configs/logger.yaml")
@@ -77,6 +76,9 @@ def get_args():
     parser.add_argument('--no-save', '-n', action='store_true',
                         help="Do not save the output masks",
                         default=False)
+    parser.add_argument('--covid', '-c', action='store_true',
+                        help="Do not save the output masks",
+                        default=False)
     parser.add_argument('--mask_threshold', '-t', type=float,
                         help="Minimum probability value to consider a mask pixel white",
                         default=0.5)
@@ -146,4 +148,4 @@ if __name__ == "__main__":
 
         if args.viz:
             _logger.info("Visualizing results for image {}, close to continue ...".format(fn))
-            plot_img_and_mask(img, np.uint8(mask), 0.6)
+            plot_img_and_mask(img, np.uint8(mask), 0.3)

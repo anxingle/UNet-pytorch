@@ -1,8 +1,7 @@
 import argparse
 import logging
 import logging.config
-import lake
-from lake.conf import ConfigLoader
+from utils.load_conf import ConfigLoader
 from pathlib import Path
 
 logger_path = Path("./configs/logger.yaml")
