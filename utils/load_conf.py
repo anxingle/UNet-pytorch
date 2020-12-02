@@ -25,7 +25,7 @@ class ConfigLoader(object):
 
     def _load(self):
         with open(self._config_path, 'rb') as f:
-            self._conf = yaml.load(f)
+            self._conf = yaml.safe_load(f)
 
     @property
     def conf(self):

@@ -5,7 +5,6 @@ from utils.load_conf import ConfigLoader
 from pathlib import Path
 
 logger_path = Path("./configs/logger.yaml")
-print("current_path: ", logger_path.resolve())
 conf = ConfigLoader(logger_path)
 _logger = logging.getLogger(__name__)
 
@@ -21,11 +20,10 @@ from tqdm import tqdm
 from eval import eval_net
 from unet import UNet
 
-from torch.utils.tensorboard import SummaryWriter
 from utils.dataset import BasicDataset
 from torch.utils.data import DataLoader, random_split
 
-base = Path(os.environ['raw_data_base']) if 'raw_data_base' in os.environ.keys() else None
+base = Path(os.environ['raw_data_base']) if 'raw_data_base' in os.environ.keys() else Path('./data')
 assert base is not None, "Please assign the raw_data_base(which store the training data) in system path "
 dir_img = base / 'imgs'
 dir_mask = base / 'masks/'
@@ -45,8 +43,8 @@ def train_net(net,
     n_val = int(len(dataset) * val_percent)
     n_train = len(dataset) - n_val
     train, val = random_split(dataset, [n_train, n_val])
-    train_loader = DataLoader(train, batch_size=batch_size, shuffle=True, num_workers=8, pin_memory=True)
-    val_loader = DataLoader(val, batch_size=batch_size, shuffle=False, num_workers=8, pin_memory=True, drop_last=True)
+    train_loader = DataLoader(train, batch_size=batch_size, shuffle=True, num_workers=1, pin_memory=True)
+    val_loader = DataLoader(val, batch_size=batch_size, shuffle=False, num_workers=1, pin_memory=True, drop_last=True)
 
     global_step = 0
 
@@ -104,7 +102,7 @@ def train_net(net,
 
                 pbar.update(imgs.shape[0])
                 global_step += 1
-                if global_step % (n_train // (10 * batch_size)) == 0:
+                if global_step % max((n_train // (10 * batch_size)), 1)== 0:
                     # 验证集评估模型
                     val_score = eval_net(net, val_loader, device)
                     scheduler.step(val_score)
@@ -129,7 +127,7 @@ def get_args():
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-e', '--epochs', metavar='E', type=int, default=5,
                         help='Number of epochs', dest='epochs')
-    parser.add_argument('-b', '--batch-size', metavar='B', type=int, nargs='?', default=4,
+    parser.add_argument('-b', '--batch-size', metavar='B', type=int, nargs='?', default=1,
                         help='Batch size', dest='batchsize')
     parser.add_argument('--channels', type=int, default=3, help='image channels', dest='channels')
     parser.add_argument('--classes', type=int, default=1, help='mask nums', dest='classes')
