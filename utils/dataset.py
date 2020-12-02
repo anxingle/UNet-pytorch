@@ -68,9 +68,16 @@ class BasicDataset(Dataset):
         mask = cv2.imread(mask_file)
         img = cv2.imread(img_file)
 
-        assert img.shape == mask.shape, \
-            f'Image and mask {idx} should be the same size, but are {img.shape} and {mask.shape}'
+        assert img is not None, "img 为空，请检查图片是否在该路径下：%s" % img_file
+        assert mask is not None, "mask 为空，请检查图片是否在该路径下：%s" % mask_file
 
+        assert img.shape == mask.shape, \
+            f'Image 和 mask {idx} 应该有相同的大小, 但这里img是： {img.shape}， mask是： {mask.shape}'
+
+        print("img_file: ", img_file)
+        print("img shape: ",  img.shape)
+        print("mask_file: ", mask_file)
+        print("mask shape: ",  mask.shape)
         img = self.preprocess(img, self.scale)
         mask = self.preprocess(mask, self.scale, gray=True)
 
