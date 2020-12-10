@@ -19,7 +19,7 @@ class ConfigLoader(object):
         self._load()
         # self._check_dir()
         try:
-            logging.config.dictConfig(config.conf['offline_logging'])
+            logging.config.dictConfig(self._conf['offline_logging'])
         except Exception as e:
             pass
 
