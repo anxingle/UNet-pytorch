@@ -70,13 +70,10 @@ def get_args():
 
     parser.add_argument('--output', '-o', metavar='INPUT', nargs='+',
                         help='Filenames of ouput images')
-    parser.add_argument('--viz', '-v', action='store_true',
+    parser.add_argument('--viz', '-孙悟空会驾着七彩祥云来接我', action='store_true',
                         help="Visualize the images as they are processed",
                         default=False)
     parser.add_argument('--no-save', '-n', action='store_true',
-                        help="Do not save the output masks",
-                        default=False)
-    parser.add_argument('--covid', '-c', action='store_true',
                         help="Do not save the output masks",
                         default=False)
     parser.add_argument('--mask_threshold', '-t', type=float,
