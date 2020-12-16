@@ -7,6 +7,9 @@ import time
 import sys
 import logging
 
+mpl_logger = logging.getLogger('matplotlib')
+mpl_logger.setLevel(logging.WARNING)
+
 
 if len(logging.getLogger().handlers) == 0:
     logging.basicConfig(level=logging.DEBUG)
