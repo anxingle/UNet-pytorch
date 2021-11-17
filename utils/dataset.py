@@ -55,8 +55,8 @@ class BasicDataset(Dataset):
         idx = self.ids[i]
         # mask_file = glob(self.masks_dir + '/' + idx + self.mask_suffix + '.*')
         # img_file = glob(self.imgs_dir + '/' + idx + '.*')
-        mask_file = os.path.join(self.masks_dir, '%s' % idx + self.mask_suffix + '.jpg')
-        img_file = os.path.join(self.imgs_dir, '%s' % idx + '.jpg')
+        mask_file = os.path.join(self.masks_dir, '%s' % idx + self.mask_suffix + '.bmp')
+        img_file = os.path.join(self.imgs_dir, '%s' % idx + '.bmp')
 
         # XXX: 这里mask_file 应该是路径名
         # assert len(mask_file) == 1, \
